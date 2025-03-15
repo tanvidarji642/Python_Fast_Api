@@ -16,10 +16,11 @@ async def addUser(user:User):
     user.role_id = ObjectId(user.role_id)
     print("after type cast",user.role_id)
     result = await user_collection.insert_one(user.dict())
-    send_mail(user.email,"User Created","user Created Successfully")
-    # return {"Message":"user created successfully"}
-
-    return JSONResponse(status_code=201,content={"message":"user created successfully!!"})
+    send_mail(user.email,"User Created","User created successfully")
+    #mail...
+    #return {"Message":"user created successfully"}
+    
+    return JSONResponse(status_code=201,content={"message":"User created successfully"})
     #raise HTTPException(status_code=500,detail="User not created")
 
 # async def getAllUsers():
@@ -28,29 +29,39 @@ async def addUser(user:User):
 #     return [UserOut(**user) for user in users]
 
 async def getAllUsers():
-    users = await user_collection.find().to_list(length=None)
+    print("getAllUsers")
+    try:
+        users = await user_collection.find().to_list(length=None)
 
-    print("users...................",users)
+        print("users...................",users)
     # return [UserOut(**role) for role in users]
+        print("users",users)
 
-    for user in users:
+        for user in users:
         # Convert role_id from ObjectId to str before validation
-        if "role_id" in user and isinstance(user["role_id"], ObjectId):
-            user["role_id"] = str(user["role_id"])
+            if "role_id" in user and isinstance(user["role_id"], ObjectId):
+                user["role_id"] = str(user["role_id"])
         
         # Fetch role details
-        role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})  
+        # role = None
+        # if user.get("role_id"):
+            role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})
+
         
-        if role:
-            role["_id"] = str(role["_id"])  # Convert role _id to string
-            user["role"] = role
+            if role:
+                role["_id"] = str(role["_id"])  # Convert role _id to string
+                user["role"] = role
 
-    return [UserOut(**user) for user in users]
-
-
+        return {"ok":"ok"}
+    #return [UserOut(**user) for user in users]
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while fetching users")
+    
     # async def getAllUsers():
     #find --> select * from roles
     # users = await user_collection.find().to_list()
+
 async def loginUser(request: UserLogin):
     # Find the user by email
     foundUser = await user_collection.find_one({"email": request.email})
@@ -84,6 +95,7 @@ async def loginUser(request: UserLogin):
         return {"message": "User login successful", "user": UserOut(**foundUser)}
 
     else:
+
         raise HTTPException(status_code=404, detail="Invalid password")
     
 
@@ -98,3 +110,5 @@ async def getUserById(userId:str):
     #return {"message":"role fetched successfully!"}
     #return result
     return UserOut(**result)    
+
+    

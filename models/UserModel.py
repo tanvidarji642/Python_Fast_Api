@@ -6,15 +6,15 @@ from fastapi import FastAPI
 
 
 class User(BaseModel):
-    firstname: str  # Alias for 'name' to 'firstname'
-    lastname: str   # Alias for 'lastName' to 'lastname'
-    gender: Optional[str] = None  # Gender can be null or omitted
-    contact: Optional[str] = None  # Contact can be null or omitted
+    firstname: Optional[str] = None 
+    lastname: Optional[str] = None 
+    gender: Optional[str] = None  
+    contact: Optional[str] = None  
     email: EmailStr  # Validates email format
-    password: str 
-    confirm_password: Optional[str] = None  # Confirm password can be null or omitted
+    password: Optional[str] = None
+    confirm_password: Optional[str] = None 
     age: int
-    profilePicPath: Optional[str] = None  # Profile picture path can be null or omitted
+    profilePicPath: Optional[str] = None 
     role: str 
     role_id: Optional[str] = None
     status: bool
@@ -34,10 +34,15 @@ class User(BaseModel):
 class UserOut(User):
     id: str = Field(alias="_id")  
     role: Optional[Dict[str, Any]] = None
+    firstname: Optional[str] = None
+    lastname: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
     confirm_password: Optional[str] = None
     status: Optional[bool] = None
+    profilePicPath: Optional[str] = None
+    # role_id: Optional[str] = None
+
     
     @validator("id", pre=True, always=True)
     def convert_objectId(cls, v):
@@ -54,3 +59,4 @@ class UserOut(User):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    

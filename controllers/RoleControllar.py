@@ -5,6 +5,8 @@ from bson import ObjectId
 #business logic function
 
 async def getAllRoles():
+    print("getAll",flush=True)
+    # async def getAllRoles():
     #find --> select * from roles
     roles = await role_collection.find().to_list()
     print("roles...................",roles)

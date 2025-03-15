@@ -7,11 +7,10 @@ router = APIRouter()
 @router.post("/user/")
 async def post_user(user:User):
     return await addUser(user)
-    
+
 @router.get("/users/")
 async def get_users():
-    return await getAllUsers() #promise
-#{name:"",descr:""}
+    return await getAllUsers()
  
 @router.delete("/user/{userId}")
 async def delete_user(userId:str):
