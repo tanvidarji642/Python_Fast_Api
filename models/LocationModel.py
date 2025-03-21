@@ -10,10 +10,12 @@ class Location(BaseModel):
     active: bool
     contactNumber: str
     address: str
+    stateId: Optional[str]
     cityId: str  # Foreign key reference to City
     areaId: str  # Foreign key reference to Area
     foodType: str
     latitude: float
+    longtitude: Optional[float]
 
 class LocationOut(Location):
     id: str = Field(alias="_id")
