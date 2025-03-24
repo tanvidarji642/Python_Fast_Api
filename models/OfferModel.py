@@ -1,16 +1,21 @@
 from pydantic import BaseModel
 from typing import Optional
 from bson import ObjectId
+from datetime import date
 # from datetime import date
 
 class Offer(BaseModel):
     title: str
     description: Optional[str] = None
     active: bool
-    startDate: str
-    endDate: str
+    startDate: date  
+    endDate: date  
+    discountPercentage: Optional[int] 
+    minOrderAmount: Optional[int]
     locationId: str  # Foreign key reference to Location
     foodType: str  # Example: "burger, pizza, pasta"
+
+    
 
 class OfferOut(Offer):
     # id: str

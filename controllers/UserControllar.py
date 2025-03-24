@@ -3,10 +3,16 @@ from bson import ObjectId
 from config.database import user_collection,role_collection
 from fastapi import HTTPException,APIRouter
 from fastapi.responses import JSONResponse
-import bcrypt
+import bcrypt  
+from pydantic import EmailStr 
 # from utils. import send_mail
-
 from utils.SendMail import send_mail
+from fastapi import APIRouter, HTTPException, UploadFile, File,Form
+from utils.CloudinaryUtil import upload_image
+import shutil
+import os
+import cloudinary
+import cloudinary.uploader
 
 
 async def addUser(user:User):
@@ -52,7 +58,8 @@ async def getAllUsers():
                 role["_id"] = str(role["_id"])  # Convert role _id to string
                 user["role"] = role
 
-        return {"ok":"ok"}
+        # return {"ok":"ok"}
+        return[UserOut(**user)for user in users]
     #return [UserOut(**user) for user in users]
     except Exception as e:
         print(f"An error occurred: {str(e)}")
@@ -109,6 +116,132 @@ async def getUserById(userId:str):
     print(result)    
     #return {"message":"role fetched successfully!"}
     #return result
-    return UserOut(**result)    
+    # UserOut(**result)  
+    return {"message": "User login successful", "user": UserOut(**result)}
 
+# async def addSignupWithFile(
+#     firstname: str = Form(...),
+#     lastname: str = Form(...),
+#     gender: str = Form(...),
+#     contact: int = Form(...),
+#     email: EmailStr = Form(...),  # Validate email format
+#     password: str = Form(...),
+#     confirm_password: str = Form(...),
+#     age: int = Form(...),
+#     role: str = Form(...),
+#     role_id: str = Form(...),
+#     status: str = Form(...),
+#     profilePicPath: UploadFile = File(...)
+# ):
     
+#     try:
+#         # Ensure upload directory exists
+#         UPLOAD_DIR = "uploads"
+#         os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+#         # Validate role_id
+#         if not ObjectId.is_valid(role_id):
+#             raise HTTPException(status_code=400, detail="Invalid role ID")
+
+#         # Extract file extension
+#         file_ext = profilePicPath.filename.split(".")[-1]
+#         file_name = f"{ObjectId()}.{file_ext}"
+#         file_path = os.path.join(UPLOAD_DIR, file_name)
+
+#         # Save file locally before uploading to Cloudinary
+#         with open(file_path, "wb") as buffer:
+#             shutil.copyfileobj(profilePicPath.file, buffer)
+
+#         # Upload image to Cloudinary and get URL
+#         cloudinary_url = await upload_image(file_path)
+
+#         # Create user data
+#         user_data = {
+#             "firstname": firstname,
+#             "lastname": lastname,
+#             "gender": gender,
+#             "contact": contact,
+#             "email": email,
+#             "password": password,
+#             "confirm_password": confirm_password,
+#             "age": age,
+#             "role": role,
+#             "role_id": ObjectId(role_id),  # Convert to ObjectId
+#             "status": status,
+#             "profilePicPath": cloudinary_url  # Store Cloudinary URL
+#         }
+
+#         # Insert into MongoDB
+#         await image_collection.insert_one(user_data)
+
+#         return {"message": "User created successfully", "profilePicURL": cloudinary_url}
+    
+#     except Exception as e:
+#         print(f"An error occurred: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+async def addSignupWithFile(
+    firstname: str = Form(...),
+    lastname: str = Form(...),
+    gender: str = Form(...),
+    contact: int = Form(...),
+    email: EmailStr = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    age: int = Form(...),
+    role: str = Form(...),
+    role_id: str = Form(...),
+    status: bool = Form(...),
+    profilePicPath: UploadFile = File(...)
+):
+    try:
+        # Ensure upload directory exists
+        UPLOAD_DIR = "uploads"
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        
+        # Validate role_id
+        if not ObjectId.is_valid(role_id):
+            raise HTTPException(status_code=400, detail="Invalid role ID")
+        
+        # Extract file extension
+        file_ext = profilePicPath.filename.split(".")[-1]
+        file_name = f"{ObjectId()}.{file_ext}"
+        file_path = os.path.join(UPLOAD_DIR, file_name)
+        
+        # Save file locally before uploading to Cloudinary
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(profilePicPath.file, buffer)
+        
+        # Upload image to Cloudinary and get URL
+        cloudinary_url = await upload_image(file_path)
+        
+        # Hash the password for security
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        
+        # Create user data
+        user_data = {
+            "firstname": firstname,
+            "lastname": lastname,
+            "gender": gender,
+            "contact": contact,
+            "email": email,
+            "password": hashed_password.decode('utf-8'),  # Store hashed password
+            "age": age,
+            "role": role,
+            "role_id": ObjectId(role_id),  # Convert to ObjectId
+            "status": status,
+            "profilePicPath": cloudinary_url  # Store Cloudinary URL
+        }
+        
+        # Insert into MongoDB
+        result = await user_collection.insert_one(user_data)
+        
+        # Clean up local file after uploading to Cloudinary
+        os.remove(file_path)
+        
+        return {"message": "User created successfully", "profilePicURL": cloudinary_url, "userId": str(result.inserted_id)}
+        
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

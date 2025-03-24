@@ -13,14 +13,13 @@ from routes.OfferRoute import router as offer_router
 from routes.ProductRoutes import router as product_router
 from routes.RatingRoutes import router as rating_router
 
-
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Change "*" to your frontend domain for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
