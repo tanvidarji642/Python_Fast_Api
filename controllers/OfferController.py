@@ -1,3 +1,4 @@
+from datetime import datetime
 from models.OfferModel import Offer, OfferOut
 from bson import ObjectId
 from config.database import offer_collection, location_collection
@@ -6,6 +7,11 @@ from fastapi.responses import JSONResponse
 
 async def addOffer(offer: Offer):
     offer_dict = offer.dict()
+
+    # Convert startDate and endDate from date to datetime
+    offer_dict["startDate"] = datetime.combine(offer.startDate, datetime.min.time())
+    offer_dict["endDate"] = datetime.combine(offer.endDate, datetime.min.time())
+
     offer_dict["locationId"] = ObjectId(offer_dict["locationId"])  # Convert to ObjectId
 
     saved_offer = await offer_collection.insert_one(offer_dict)
@@ -22,6 +28,10 @@ async def getOffers():
         offer["_id"] = str(offer["_id"])
         offer["locationId"] = str(offer["locationId"])
 
+        # Convert datetime to string for JSON response
+        offer["startDate"] = offer["startDate"].isoformat()
+        offer["endDate"] = offer["endDate"].isoformat()
+
         # Fetch location details
         location = await location_collection.find_one({"_id": ObjectId(offer["locationId"])})
         if location:
@@ -29,6 +39,7 @@ async def getOffers():
             offer["location"] = location  # Attach location details
 
     return [OfferOut(**offer) for offer in offers]
+
 
 async def updateOffer(offer_id: str, offer: Offer):
     existing_offer = await offer_collection.find_one({"_id": ObjectId(offer_id)})

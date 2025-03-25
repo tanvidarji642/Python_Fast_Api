@@ -12,6 +12,7 @@ from routes.LocationRoute import router as location_router
 from routes.OfferRoute import router as offer_router
 from routes.ProductRoutes import router as product_router
 from routes.RatingRoutes import router as rating_router
+from routes.RestaurantRoutes import router as restaurant_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,3 +39,9 @@ app.include_router(location_router, tags=["Location"])
 app.include_router(offer_router, tags=["Offer"])
 app.include_router(product_router, tags=["Product"])
 app.include_router(rating_router, tags=["Rating"])
+app.include_router(restaurant_router, tags=["Restaurant"])
+
+
+# @app.get("/")
+# def home():
+#     return {"message": "FastAPI backend is running"}

@@ -20,4 +20,6 @@ area_collection = db["areas"]
 offer_collection = db["offers"]
 product_collection = db["products"]
 rating_collection = db["ratings"]
+restaurant_collection = db["restaurant"]
+
 # image_collection = db["images"]
