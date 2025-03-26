@@ -63,3 +63,6 @@ async def deleteOffer(offer_id: str):
         raise HTTPException(status_code=404, detail="Offer not found")
 
     return JSONResponse(content={"message": "Offer deleted successfully"}, status_code=200)
+
+
+

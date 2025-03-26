@@ -41,51 +41,6 @@ async def get_user_byId(userId:str):
 async def login_user(user: UserLogin):
     return await loginUser(user)
 
-# @router.post("/addwithfile")
-# async def addwithfile(
-      
-#     firstname: str = Form(...),
-#     lastname: str = Form(...),
-#     gender:  str = Form(...),
-#     contact: int = Form(...), 
-#     email: EmailStr = Form(...),  # Validates email format
-#     password: str = Form(...),
-#     confirm_password: str = Form(...),
-#     age: int = Form(...),
-#     role: str = Form(...), 
-#     role_id: str = Form(...),
-#     status: str = Form(...),
-#     profilePicPath: UploadFile = File(...)):
-
-
-#     #print(product)
-#      return await UserControllar.addSignupWithFile(
-#         firstname, lastname, gender, contact, email, password, confirm_password, age, role, role_id, status, profilePicPath
-#     )
-    
-
-# @router.post("/addwithfile")
-# async def addwithfile(
-#     firstname: str = Form(...),
-#     lastname: str = Form(...),
-#     gender: str = Form(...),
-#     contact: int = Form(...),
-#     email: EmailStr = Form(...),  # Validates email format
-#     password: str = Form(...),
-#     confirm_password: str = Form(...),
-#     age: int = Form(...),
-#     role: str = Form(...),
-#     role_id: str = Form(...),
-#     status: str = Form(...),
-#     profilePicPath: UploadFile = File(...)
-# ):
-#     try:
-#         return await addSignupWithFile(
-#             firstname, lastname, gender, contact, email, password, confirm_password, age, role, role_id, status, profilePicPath
-#         )
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
 @router.post("/user/addwithfile")  # Changed from just "/addwithfile" to "/user/addwithfile"
 async def addwithfile(
     firstname: str = Form(...),
@@ -98,7 +53,7 @@ async def addwithfile(
     age: int = Form(...),
     role: str = Form(...),
     role_id: str = Form(...),
-    status: bool = Form(...),  # Changed to bool to match what you're sending
+    status: bool = Form(...), 
     profilePicPath: UploadFile = File(...)
 ):
     try:
