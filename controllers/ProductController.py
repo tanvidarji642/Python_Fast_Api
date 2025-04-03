@@ -1,6 +1,6 @@
-from models.ProductModel import Product,ProductOut
-from config.database import product_collection,category_collection,user_collection,sub_category_collection
-from fastapi import APIRouter, HTTPException, UploadFile, File,Form
+from models.ProductModel import Product, ProductOut
+from config.database import product_collection, category_collection, user_collection, sub_category_collection
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from bson import ObjectId
 import shutil
@@ -32,39 +32,43 @@ async def create_Product_withFile(
     image: UploadFile = File(...)
 ):
     try:
-    
         # Ensure upload directory exists
         os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-        #abc.jpg -> ["abc", "jpg"]
-        # Save the uploaded file
-        file_ext = image.filename.split(".")[-1]  # Get file extension
-        file_path = os.path.join(UPLOAD_DIR, f"{ObjectId()}.{file_ext}")  # Rename file
+        # Validate file
+        if not image.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded")
+        file_ext = image.filename.split(".")[-1]
+        file_path = os.path.join(UPLOAD_DIR, f"{ObjectId()}.{file_ext}")
+
+        # Save file locally before uploading to Cloudinary
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
 
-        # Create a product object (DO NOT include `image` directly)
-        
-        #upload image to cloudinary
+        # Upload image to Cloudinary and get URL
         image_url = await upload_image(file_path)
-        
+
+        # Create product data
         product_data = {
             "name": name,
             "price": price,
-            "category_id": str(ObjectId(category_id)),
-            "sub_category_id": str(ObjectId(sub_category_id)),
-            "vendor_id": str(ObjectId(vendor_id)),
-            "image_url":image_url # Only store path, NOT file object
+            "category_id": ObjectId(category_id),
+            "sub_category_id": ObjectId(sub_category_id),
+            "vendor_id": ObjectId(vendor_id),
+            "image_url": image_url
         }
-        print(product_data)
-        insertedProduct = await product_collection.insert_one(product_data)
 
-        return JSONResponse(content={"message": "Product created successfully"}, status_code=201)
+        # Insert into MongoDB
+        result = await product_collection.insert_one(product_data)
+
+        # Clean up local file after uploading to Cloudinary
+        os.remove(file_path)
+
+        return {"message": "Product created successfully", "imageURL": image_url, "productId": str(result.inserted_id)}
+
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
-
 
 async def get_products():
     try:

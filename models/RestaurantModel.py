@@ -5,19 +5,12 @@ import bcrypt   # pip install bcrypt
 from fastapi import FastAPI
 
 class Restaurant(BaseModel):
-    firstName:str
-    lastName:str
-    gender: str
-    contact:int
+    name: str
     email:EmailStr
     password:str
-    confirm_password:str
-    age:int
-    profilePicPath:str
-    status:bool
-    # role:str
-    role_id:str
-    status: bool
+    confirmPassword:str
+    # role_id:str
+
 
     
     #10,11,12,13,14,15,16,20,,,25,31

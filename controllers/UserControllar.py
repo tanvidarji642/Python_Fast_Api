@@ -173,6 +173,8 @@ async def addSignupWithFile(
             raise HTTPException(status_code=400, detail="Invalid role ID")
         
         # Extract file extension
+        if not profilePicPath.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded")
         file_ext = profilePicPath.filename.split(".")[-1]
         file_name = f"{ObjectId()}.{file_ext}"
         file_path = os.path.join(UPLOAD_DIR, file_name)
@@ -185,7 +187,7 @@ async def addSignupWithFile(
         cloudinary_url = await upload_image(file_path)
         
         # Hash the password for security
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode("utf-8")
         
         # Create user data
         user_data = {
@@ -194,7 +196,7 @@ async def addSignupWithFile(
             "gender": gender,
             "contact": contact,
             "email": email,
-            "password": hashed_password.decode('utf-8'), 
+            "password": hashed_password, 
             "confirm_password": confirm_password,
             "age": age,
             "role": role,
