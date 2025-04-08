@@ -62,3 +62,14 @@ async def addwithfile(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+
+    #put user/{userId}
+# @router.put("/user/{userId}")   
+# async def put_user(userId:str,user:User):
+#     try:
+#         # Assuming you have a function to update user details in your controller
+#         updated_user = await updateUser(userId, user)
+#         return {"message": "User updated successfully", "user": updated_user}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
