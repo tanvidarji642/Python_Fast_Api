@@ -59,3 +59,19 @@ async def add_offer_with_file(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+@router.get("/offer/{location_id}/offers")
+async def get_offers_by_restaurant(location_id: str):
+    try:
+        offers = await offer_collection.find({"locationId": location_id}).to_list(length=100)
+
+        for offer in offers:
+            offer["_id"] = str(offer["_id"])
+            offer["locationId"] = str(offer["locationId"])
+            offer["startDate"] = offer["startDate"].isoformat()
+            offer["endDate"] = offer["endDate"].isoformat()
+
+        return [OfferOut(**offer) for offer in offers]
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch offers: {str(e)}")
