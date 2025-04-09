@@ -1,11 +1,3 @@
-# from fastapi import APIRouter
-# from controllers.UserControllar import addUser,getAllUsers,deleteUser,getUserById,loginUser,addSignupWithFile
-# from models.UserModel import User,UserOut,UserLogin
-# from fastapi import APIRouter, Form, UploadFile, File
-
-
-# router = APIRouter()
-
 from fastapi import APIRouter, Form, UploadFile, File, HTTPException
 from pydantic import EmailStr  # Import EmailStr for validation
 from controllers.UserControllar import (
@@ -15,6 +7,7 @@ from controllers.UserControllar import (
     getUserById,
     loginUser,
     addSignupWithFile,
+    updateUser, 
 )
 from models.UserModel import User, UserOut, UserLogin
 
@@ -64,12 +57,35 @@ async def addwithfile(
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
     
 
-    #put user/{userId}
-# @router.put("/user/{userId}")   
-# async def put_user(userId:str,user:User):
-#     try:
-#         # Assuming you have a function to update user details in your controller
-#         updated_user = await updateUser(userId, user)
-#         return {"message": "User updated successfully", "user": updated_user}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+@router.put("/user/{userId}")
+async def put_user(
+    userId: str,
+    firstname: str = Form(...),
+    lastname: str = Form(...),
+    gender: str = Form(...),
+    contact: int = Form(...),
+    email: EmailStr = Form(...),
+    age: int = Form(...),
+    role: str = Form(...),
+    role_id: str = Form(...),
+    status: bool = Form(...)
+):
+    try:
+        # Prepare the update data as a dictionary
+        update_data = {
+            "firstname": firstname,
+            "lastname": lastname,
+            "gender": gender,
+            "contact": contact,
+            "email": email,
+            "age": age,
+            "role": role,
+            "role_id": role_id,
+            "status": status,
+        }
+
+        # Call the controller function to update the user
+        updated_user = await updateUser(userId, update_data)
+        return {"message": "User updated successfully", "user": updated_user}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

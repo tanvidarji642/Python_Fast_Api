@@ -13,6 +13,7 @@ import shutil
 import os
 import cloudinary
 import cloudinary.uploader
+from fastapi import Form
 
 
 async def addUser(user:User):
@@ -38,29 +39,24 @@ async def getAllUsers():
     print("getAllUsers")
     try:
         users = await user_collection.find().to_list(length=None)
-
-        print("users...................",users)
-    # return [UserOut(**role) for role in users]
-        print("users",users)
+        print("users...................", users)
 
         for user in users:
-        # Convert role_id from ObjectId to str before validation
+            # Convert role_id from ObjectId to str before validation
             if "role_id" in user and isinstance(user["role_id"], ObjectId):
                 user["role_id"] = str(user["role_id"])
-        
-        # Fetch role details
-        # role = None
-        # if user.get("role_id"):
-            role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})
 
-        
-            if role:
-                role["_id"] = str(role["_id"])  # Convert role _id to string
-                user["role"] = role
+            # Fetch role details
+            role = None
+            if user.get("role_id"):
+                role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})
+                if role:
+                    role["_id"] = str(role["_id"])  # Convert role _id to string
+                    user["role"] = role
+                else:
+                    user["role"] = None  # Ensure role is None if not found
 
-        # return {"ok":"ok"}
-        return[UserOut(**user)for user in users]
-    #return [UserOut(**user) for user in users]
+        return [UserOut(**user) for user in users]
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching users")
@@ -216,3 +212,32 @@ async def addSignupWithFile(
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+async def updateUser(userId: str, update_data: dict):
+    try:
+        if not ObjectId.is_valid(userId):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+
+        # Convert role_id to ObjectId if it exists
+        if "role_id" in update_data and ObjectId.is_valid(update_data["role_id"]):
+            update_data["role_id"] = ObjectId(update_data["role_id"])
+
+        result = await user_collection.update_one(
+            {"_id": ObjectId(userId)},
+            {"$set": update_data}
+        )
+
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="User not found or no changes made")
+
+        updated_user = await user_collection.find_one({"_id": ObjectId(userId)})
+
+        return {
+            "message": "User updated successfully",
+            "user": updated_user
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating user: {str(e)}")
+    
+

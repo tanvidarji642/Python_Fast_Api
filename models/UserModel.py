@@ -29,11 +29,6 @@ class User(BaseModel):
 
 class UserOut(User):
     id:str = Field(alias="_id")  
-    firstname: Optional[str] = None
-    lastname: Optional[str] = None  
-    confirm_password: Optional[str] = None
-    #role:str = Field(alias="role_id")
-    #[{firstna,,,,role:{"onjectid",des,name}},{},{}]
     role:Optional[Dict[str,Any]] = None
     email:Optional[str] = None
     password:Optional[str] = None
@@ -46,10 +41,10 @@ class UserOut(User):
         return v
     
     @validator("role", pre=True, always=True)
-    def convert_role(cls, v):
-        if isinstance(v, dict) and "_id" in v:
-            v["_id"] = str(v["_id"])  # Convert role _id to string
-        return v
+    def validate_role(cls, v):
+        if v is None or isinstance(v, dict):
+            return v
+        raise ValueError("Role must be a valid dictionary or None")
 
 
 

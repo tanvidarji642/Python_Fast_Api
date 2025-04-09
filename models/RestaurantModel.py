@@ -22,7 +22,7 @@ class Restaurant(BaseModel):
 
 class RestaurantOut(Restaurant):
     id:str = Field(alias="_id")    
-    #role:str = Field(alias="role_id")
+    role:str = Field(alias="role_id")
     #[{firstna,,,,role:{"onjectid",des,name}},{},{}]
     role:Optional[Dict[str,Any]] = None
     email:Optional[str] = None
