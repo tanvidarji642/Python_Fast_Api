@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, validator, EmailStr, constr
 from bson import ObjectId
 from typing import Optional, Dict, Any
-import bcrypt   # pip install bcrypt
+import bcrypt   
 from fastapi import FastAPI
 
 class User(BaseModel):
@@ -52,3 +52,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class ResetPasswordReq(BaseModel):
+    token:str
+    password:str    

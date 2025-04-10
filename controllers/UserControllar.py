@@ -1,7 +1,6 @@
-from models.UserModel import User,UserOut,UserLogin
+from models.UserModel import User,UserOut,UserLogin,ResetPasswordReq
 from bson import ObjectId
 from config.database import user_collection,role_collection
-from fastapi import HTTPException,APIRouter
 from fastapi.responses import JSONResponse
 import bcrypt  
 from pydantic import EmailStr 
@@ -13,7 +12,13 @@ import shutil
 import os
 import cloudinary
 import cloudinary.uploader
-from fastapi import Form
+import jwt 
+import datetime
+from urllib.parse import unquote
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+
+
+
 
 
 async def addUser(user:User):
@@ -137,6 +142,17 @@ async def getUserById(userId: str):
         if "role_id" in user and isinstance(user["role_id"], ObjectId):
             user["role_id"] = str(user["role_id"])
 
+        # Fetch role details if role_id exists
+        if user.get("role_id"):
+            role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})
+            if role:
+                role["_id"] = str(role["_id"])  # Convert role _id to string
+                user["role"] = role
+            else:
+                user["role"] = None
+        else:
+            user["role"] = None
+
         return {"message": "User fetched successfully", "user": UserOut(**user)}
 
     except Exception as e:
@@ -241,3 +257,68 @@ async def updateUser(userId: str, update_data: dict):
         raise HTTPException(status_code=500, detail=f"Error updating user: {str(e)}")
     
 
+SECRET_KEY ="royal"
+
+def generate_token(email: str):
+    from datetime import datetime, timedelta
+    expiration = datetime.utcnow() + timedelta(hours=1)
+    payload = {"sub": email, "exp": expiration}
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return token
+
+async def forgotPassword(email:str):
+    foundUser = await user_collection.find_one({"email":email})
+    if not foundUser:
+        raise HTTPException(status_code=404,detail="email not found")
+    
+    token = generate_token(email)
+    resetLink = f"http://localhost:5173/resetpassword/{token}"
+    body = f"""
+    <html>
+        <h1>HELLO THIS IS RESET PASSWORD LINK EXPIRES IN 1 hour</h1>
+        <a href= "{resetLink}">RESET PASSWORD</a>
+    </html>
+    """
+    subject = "RESET PASSWORD"
+    send_mail(email,subject,body)
+    return {"message":"reset link sent successfully"}
+    
+
+async def resetPassword(data: ResetPasswordReq):
+    try:
+        print(f"Received token: {data.token}")
+        
+        # Ensure the token is URL-decoded
+        token = unquote(data.token)
+
+        # Validate the token format
+        if token.count(".") != 2:
+            raise HTTPException(status_code=400, detail="Invalid token format: Token must have three segments")
+
+        # Decode the token
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        except ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Reset token has expired")
+        except InvalidTokenError as e:
+            print(f"JWT Decode Error: {e}")
+            raise HTTPException(status_code=400, detail="Reset token is invalid or malformed")
+
+        # Extract email from the token payload
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=400, detail="Invalid token payload: Email missing")
+
+        # Hash the new password
+        hashed_password = bcrypt.hashpw(data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        # Update the user's password in the database
+        result = await user_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="User not found or password not updated")
+
+        return {"message": "Password updated successfully"}
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Something went wrong while resetting password")

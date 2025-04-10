@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field, validator, EmailStr, constr
 from bson import ObjectId
 from typing import Optional, Dict, Any
-import bcrypt   # pip install bcrypt
+import bcrypt  
 from fastapi import FastAPI
 
 class Restaurant(BaseModel):
     name: str
-    email:EmailStr
-    password:str
-    confirmPassword:str
+    email: EmailStr
+    password: str
+    confirmPassword: str
     # role_id:str
 
 
@@ -22,8 +22,6 @@ class Restaurant(BaseModel):
 
 class RestaurantOut(Restaurant):
     id:str = Field(alias="_id")    
-    role:str = Field(alias="role_id")
-    #[{firstna,,,,role:{"onjectid",des,name}},{},{}]
     role:Optional[Dict[str,Any]] = None
     email:Optional[str] = None
     password:Optional[str] = None
@@ -45,4 +43,21 @@ class RestaurantOut(Restaurant):
 class RestaurantLogin(BaseModel):
     email: EmailStr
     password: str
+
+class ResetPasswordReq(BaseModel):
+    token:str
+    password:str 
+
+class RestaurantOffer(BaseModel):
+    restaurant_id: str
+    title: str
+    description: Optional[str] = None
+    active: bool
+    startDate: str
+    endDate: str
+    discountPercentage: Optional[int]
+    minOrderAmount: Optional[int]
+    locationId: str
+    foodType: str
+    image: str
 

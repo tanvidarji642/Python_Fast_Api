@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Form, UploadFile, File, HTTPException
-from pydantic import EmailStr  # Import EmailStr for validation
+from pydantic import EmailStr  
 from controllers.UserControllar import (
     addUser,
     getAllUsers,
@@ -8,8 +8,10 @@ from controllers.UserControllar import (
     loginUser,
     addSignupWithFile,
     updateUser, 
+    forgotPassword,
+    resetPassword
 )
-from models.UserModel import User, UserOut, UserLogin
+from models.UserModel import User, UserOut, UserLogin, ResetPasswordReq
 
 router = APIRouter()
 
@@ -56,7 +58,6 @@ async def addwithfile(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
     
-
 @router.put("/user/{userId}")
 async def put_user(
     userId: str,
@@ -89,3 +90,11 @@ async def put_user(
         return {"message": "User updated successfully", "user": updated_user}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@router.post("/user/forgotpassword")
+async def forgot_password(email:str):
+    return await forgotPassword(email)
+
+@router.post("/user/resetpassword")
+async def reset_password(data:ResetPasswordReq):
+    return await resetPassword(data)
