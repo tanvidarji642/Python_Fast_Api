@@ -18,8 +18,6 @@ dependencies = [
     "uvicorn[standard]>=0.15.0"
 ]
 
-packages = ["python_fast_api"]
-
 [project.urls]
 Homepage = "https://example.com/"
 Documentation = "https://example.com/docs"

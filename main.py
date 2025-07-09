@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI # type: ignore
 from routes.RoleRoutes import router as role_router
 from routes.UserRoutes import router as user_router
 from routes.DepartmentRoutes import router as department_router
@@ -14,7 +14,7 @@ from routes.ProductRoutes import router as product_router
 from routes.RatingRoutes import router as rating_router
 from routes.RestaurantRoutes import router as restaurant_router
 
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 
 app = FastAPI()
 
