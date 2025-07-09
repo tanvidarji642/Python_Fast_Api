@@ -9,7 +9,7 @@ name = "python_fast_api"
 version = "0.1.0"
 description = "A FastAPI project."
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "tanvidarji642", email = "darjitanvi642@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.8"
@@ -21,3 +21,6 @@ dependencies = [
 [project.urls]
 Homepage = "https://example.com/"
 Documentation = "https://example.com/docs"
+
+[tool.setuptools.packages.find]
+where = ["."]

@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: python_fast_api
+Version: 0.1.0
+Summary: A FastAPI project.
+Author-email: tanvidarji642 <darjitanvi642@gmail.com>
+Project-URL: Homepage, https://example.com/
+Project-URL: Documentation, https://example.com/docs
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.70.0
+Requires-Dist: uvicorn[standard]>=0.15.0
