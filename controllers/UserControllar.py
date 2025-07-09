@@ -17,13 +17,9 @@ import datetime
 from urllib.parse import unquote
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-
-
-
-
 async def addUser(user:User):
     #typeCast
-    #print("user....",user.role_id)
+    #print("user....",user.role_id) 
     #convert string id to object it comp.,, to mongo db
     user.role_id = ObjectId(user.role_id)
     print("after type cast",user.role_id)

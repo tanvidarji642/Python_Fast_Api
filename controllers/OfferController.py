@@ -133,3 +133,24 @@ async def addOfferWithFile(
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+async def get_offers_by_restaurant(location_id: str):
+    try:
+        # Validate location_id as ObjectId
+        if not ObjectId.is_valid(location_id):
+            raise HTTPException(status_code=400, detail="Invalid location ID format")
+
+        # Query offers by locationId
+        offers = await offer_collection.find({"locationId": ObjectId(location_id)}).to_list(length=100)
+
+        for offer in offers:
+            offer["_id"] = str(offer["_id"])
+            offer["locationId"] = str(offer["locationId"])
+            offer["startDate"] = offer["startDate"].isoformat()
+            offer["endDate"] = offer["endDate"].isoformat()
+
+        return {"offers": offers}
+
+    except Exception as e:
+        print(f"Error fetching offers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offers: {str(e)}")
