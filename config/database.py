@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
 #db url
-MONGO_URL = "mongodb://localhost:27017"
+MONGO_URL = "mongodb+srv://darjitanvi642:IxgKwZrdvmBlXwd9@cluster0.dgsasfo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 DATABASE_NAME ="internship_fast"
 
 client = AsyncIOMotorClient(MONGO_URL)
