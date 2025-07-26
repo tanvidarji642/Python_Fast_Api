@@ -2,12 +2,14 @@ import os
 import uvicorn
 from motor.motor_asyncio import AsyncIOMotorClient
 
-#db url
-# MONGO_URL = "mongodb+srv://darjitanvi642:IxgKwZrdvmBlXwd9@cluster0.dgsasfo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+# Get MongoDB URL from environment variable, ensure correct formatting
 MONGO_URL = os.environ.get("MONGODB_URL")
 if not MONGO_URL:
-    raise ValueError("MONGODB_URL environment variable is not set")
-DATABASE_NAME ="internship_fast"
+    raise ValueError("MONGODB_URL environment variable is not set. Please set it in your Render dashboard as just the connection string, e.g. mongodb+srv://user:pass@host/db?options, with no spaces or variable name.")
+if MONGO_URL.strip().startswith("MONGODB_URL"):
+    raise ValueError("MONGODB_URL environment variable is incorrectly set. Only use the connection string as the value, not 'MONGODB_URL = ...'.")
+DATABASE_NAME = "internship_fast"
 
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DATABASE_NAME]
@@ -27,7 +29,7 @@ product_collection = db["products"]
 rating_collection = db["ratings"]
 restaurant_collection = db["restaurant"]
 
-# image_collection = db["images"]
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # Render sets the PORT env variable
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
