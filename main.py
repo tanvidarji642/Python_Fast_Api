@@ -41,6 +41,9 @@ app.include_router(product_router, tags=["Product"])
 app.include_router(rating_router, tags=["Rating"])
 app.include_router(restaurant_router, tags=["Restaurant"])
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=10000)
 
 # @app.get("/")
 # def home():
