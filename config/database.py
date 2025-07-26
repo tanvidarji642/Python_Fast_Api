@@ -1,7 +1,10 @@
+import os
+import uvicorn
 from motor.motor_asyncio import AsyncIOMotorClient
 
 #db url
-MONGO_URL = "mongodb+srv://darjitanvi642:IxgKwZrdvmBlXwd9@cluster0.dgsasfo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# MONGO_URL = "mongodb+srv://darjitanvi642:IxgKwZrdvmBlXwd9@cluster0.dgsasfo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URL = os.environ.get("MONGODB_URL") 
 DATABASE_NAME ="internship_fast"
 
 client = AsyncIOMotorClient(MONGO_URL)
@@ -23,3 +26,6 @@ rating_collection = db["ratings"]
 restaurant_collection = db["restaurant"]
 
 # image_collection = db["images"]
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))  # Render sets the PORT env variable
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
