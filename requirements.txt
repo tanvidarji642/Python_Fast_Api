@@ -1,7 +1,7 @@
 annotated-types==0.7.0
 anyio==4.8.0
 bcrypt==4.3.0
-build==1.2.2.post1
+build==1.2.2.post1                 # only needed if you're doing custom packaging
 certifi==2025.1.31
 click==8.1.8
 cloudinary==1.42.2
@@ -9,17 +9,17 @@ colorama==0.4.6
 dnspython==2.7.0
 email_validator==2.2.0
 fastapi==0.115.8
-greenlet==3.1.1
+greenlet==3.1.1                    # used by SQLAlchemy
 h11==0.14.0
-idna==3.10
+idna==3.10                         # 🔁 consider updating to `idna>=3.6`
 motor==3.7.0
-multipart==1.2.1
+multipart==1.2.1                  # ⚠️ Not a standard package – do you mean `python-multipart`?
 packaging==25.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 PyJWT==2.10.1
 pymongo==4.11.1
-pyproject_hooks==1.2.0
+pyproject_hooks==1.2.0             # Only needed for custom build systems
 python-multipart==0.0.20
 six==1.17.0
 sniffio==1.3.1
